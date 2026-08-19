@@ -30,12 +30,14 @@ export function Home() {
             <div className="absolute inset-0 z-0 pointer-events-none">
               <motion.img
                 src={HERO_IMAGE}
-                alt="Performance car in dark"
+                alt="Lamborghini Aventador"
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1 }}
-                className="absolute inset-0 w-full h-full object-cover object-bottom"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                referrerPolicy="no-referrer"
               />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70" />
             </div>
             
             <motion.div 
@@ -45,10 +47,10 @@ export function Home() {
               className="relative z-10 text-center px-4 w-full mx-auto mt-8 md:mt-12"
             >
               <h1 
-                className="text-3xl md:text-5xl font-bold text-black md:text-white uppercase mb-3 md:mb-4 tracking-tight drop-shadow-xl whitespace-nowrap"
+                className="text-3xl md:text-5xl font-bold text-white uppercase mb-3 md:mb-4 tracking-tight drop-shadow-2xl whitespace-nowrap"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                <span className="relative inline-block">K<span className="absolute -bottom-1 md:-bottom-1.5 left-0 w-full h-1.5 md:h-2 bg-[#B91C1C]"></span></span>ING <span className="text-lg md:text-2xl mx-2 align-middle">OF THE</span> <span className="text-black md:text-white">R<span className="relative inline-block">I<span className="absolute -top-1.5 md:-top-2 left-1/2 -translate-x-1/2 w-2 h-2 md:w-3 md:h-3 bg-[#B91C1C] rounded-full"></span></span>NG</span>
+                <span className="relative inline-block">K<span className="absolute -bottom-1 md:-bottom-1.5 left-0 w-full h-1.5 md:h-2 bg-[#B91C1C]"></span></span>ING <span className="text-lg md:text-2xl mx-2 align-middle">OF THE</span> <span className="text-white">R<span className="relative inline-block">I<span className="absolute -top-1.5 md:-top-2 left-1/2 -translate-x-1/2 w-2 h-2 md:w-3 md:h-3 bg-[#B91C1C] rounded-full"></span></span>NG</span>
               </h1>
             </motion.div>
           </section>

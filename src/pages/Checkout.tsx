@@ -1,15 +1,51 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { CheckCircle, CreditCard, Truck } from 'lucide-react';
+import { Truck, AlertCircle, CheckCircle2, ShoppingBag, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
+import { createOrder, OrderPayload } from '../lib/supabase';
+
+interface OrderItemPayload {
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  image: string;
+  subtotal: number;
+}
+
+interface SubmittedOrder {
+  id?: string | number;
+  firstName?: string;
+  lastName?: string;
+  first_name?: string;
+  last_name?: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode?: string;
+  zip_code?: string;
+  paymentMethod?: string;
+  payment_method?: string;
+  items: OrderItemPayload[];
+  subtotal: number;
+  shippingCost?: number;
+  shipping_cost?: number;
+  total?: number;
+  total_amount?: number;
+  created_at?: string;
+}
 
 export function Checkout() {
   const { cart, cartTotal, cartCount, shippingCost, finalTotal, clearCart } = useCart();
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState<'link' | 'cod'>('link');
+  
+  const [paymentMethod, setPaymentMethod] = useState<'link' | 'cod'>('cod');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<SubmittedOrder | null>(null);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -29,49 +65,175 @@ export function Checkout() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
+    setErrorMessage(null);
+
+    const orderPayload: OrderPayload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      zipCode: formData.zipCode,
+      paymentMethod,
+      items: cart.map(item => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        image: item.product.image,
+        subtotal: item.product.price * item.quantity
+      })),
+      subtotal: cartTotal,
+      shippingCost,
+      total: finalTotal,
+    };
+
+    try {
+      const response = await createOrder(orderPayload);
+      const createdRecord: SubmittedOrder = (response && Array.isArray(response) && response[0]) ? response[0] : {
+        ...orderPayload,
+        id: Math.floor(100000 + Math.random() * 900000),
+        created_at: new Date().toISOString()
+      };
+      
       clearCart();
-    }, 1500);
+      setConfirmedOrder(createdRecord);
+    } catch (err: unknown) {
+      console.error('Failed to submit order to Supabase:', err);
+      const errObj = err as { message?: string };
+      setErrorMessage(
+        errObj.message || 'There was an issue saving your order to Supabase. Please check your connection and try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (isSuccess) {
+  useEffect(() => {
+    if (cart.length === 0 && !isSubmitting && !confirmedOrder) {
+      navigate('/cart');
+    }
+  }, [cart.length, isSubmitting, confirmedOrder, navigate]);
+
+  // If order is confirmed, display ONLY the confirmation section
+  if (confirmedOrder) {
+    const clientName = `${confirmedOrder.firstName || confirmedOrder.first_name || ''} ${confirmedOrder.lastName || confirmedOrder.last_name || ''}`.trim();
+    const emailAddress = confirmedOrder.email || '';
+    const displayId = confirmedOrder.id || Math.floor(100000 + Math.random() * 900000);
+    const orderDate = confirmedOrder.created_at || new Date().toISOString();
+    const confirmedItems = confirmedOrder.items || [];
+    const confirmedSubtotal = confirmedOrder.subtotal ?? 0;
+    const confirmedShipping = confirmedOrder.shippingCost ?? confirmedOrder.shipping_cost ?? 0;
+    const confirmedTotal = confirmedOrder.total ?? confirmedOrder.total_amount ?? (confirmedSubtotal + confirmedShipping);
+
     return (
-      <div className="flex-grow flex flex-col items-center justify-center py-20 px-4">
-        <motion.div 
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="bg-[#39FF14]/20 p-6 rounded-full mb-6 text-[#39FF14]"
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          id="order-received-section"
+          className="bg-white border border-zinc-200 rounded-2xl p-8 sm:p-12 text-center shadow-xl shadow-black/5"
         >
-          <CheckCircle className="w-16 h-16" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#39FF14]/20 text-[#39FF14] mb-6 shadow-md shadow-[#39FF14]/10">
+            <CheckCircle2 className="w-12 h-12" />
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl font-black text-black uppercase tracking-tight mb-4">
+            WE HAVE RECEIVED YOUR ORDER
+          </h1>
+
+          <p className="text-zinc-700 text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-6">
+            Thank you for your purchase, <strong className="text-black">{clientName || 'Valued Customer'}</strong>. We have received your order and send a confirmation to <strong className="text-[#B91C1C]">{emailAddress}</strong>.
+          </p>
+
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-50 border border-zinc-200 rounded-full text-xs font-mono text-zinc-600 mb-8">
+            <Clock className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Order #{displayId}</span>
+            <span className="text-zinc-300">•</span>
+            <span>{new Date(orderDate).toLocaleDateString()} {new Date(orderDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+
+          {/* Ordered Products breakdown */}
+          <div className="bg-zinc-50 rounded-xl p-6 text-left mb-8 border border-zinc-200">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-200">
+              <h2 className="text-sm font-black uppercase text-black">Ordered Products</h2>
+              <span className="text-xs font-bold text-zinc-500 uppercase">Pay on Delivery</span>
+            </div>
+
+            {confirmedItems.length > 0 ? (
+              <div className="space-y-4 mb-5 max-h-64 overflow-y-auto pr-1 custom-scrollbar divide-y divide-zinc-200/60">
+                {confirmedItems.map((item, idx) => {
+                  const name = item.productName || 'Product';
+                  const price = item.price || 0;
+                  const qty = item.quantity || 1;
+                  const itemTotal = item.subtotal || price * qty;
+                  const image = item.image;
+
+                  return (
+                    <div key={idx} className="pt-3 first:pt-0 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {image && (
+                          <div className="w-12 h-12 bg-white rounded border border-zinc-200 overflow-hidden shrink-0">
+                            <img 
+                              src={image} 
+                              alt={name} 
+                              className="w-full h-full object-cover" 
+                              onError={(e) => { e.currentTarget.src = "https://placehold.co/100x100/111/333?text=Part"; }}
+                            />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-black truncate max-w-[200px] sm:max-w-xs">{name}</p>
+                          <p className="text-xs text-zinc-500">Qty: {qty} × {price} ALL</p>
+                        </div>
+                      </div>
+                      <span className="font-black text-sm text-black shrink-0">{itemTotal} ALL</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-zinc-500 py-2">Items successfully recorded in your order.</p>
+            )}
+
+            <div className="border-t border-zinc-200 pt-3 space-y-1.5 text-sm">
+              <div className="flex justify-between text-zinc-600">
+                <span>Subtotal</span>
+                <span>{confirmedSubtotal} ALL</span>
+              </div>
+              <div className="flex justify-between text-zinc-600">
+                <span>Shipping</span>
+                <span>{confirmedShipping === 0 ? <strong className="text-[#39FF14]">FREE</strong> : `${confirmedShipping} ALL`}</span>
+              </div>
+              <div className="flex justify-between text-base font-black text-black pt-2 border-t border-zinc-200">
+                <span>Total Amount</span>
+                <span className="text-[#39FF14]">{confirmedTotal} ALL</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Continue Shopping Button */}
+          <div>
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center gap-2 bg-[#B91C1C] hover:bg-[#991b1b] text-white px-10 py-4 rounded font-black uppercase text-sm tracking-wider transition-colors shadow-lg shadow-[#B91C1C]/20 w-full sm:w-auto cursor-pointer"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Continue Shopping</span>
+            </Link>
+          </div>
         </motion.div>
-        <h2 className="text-3xl font-black text-black mb-4">Order Confirmed!</h2>
-        <p className="text-zinc-600 mb-8 text-center max-w-md">
-          Thank you for your purchase, {formData.firstName}. Your order has been successfully placed and is being processed.
-        </p>
-        <button 
-          onClick={() => navigate('/')}
-          className="bg-[#B91C1C] text-white shadow-lg shadow-[#B91C1C]/20 px-8 py-3 rounded font-black uppercase text-sm transition-colors cursor-pointer"
-        >
-          Continue Shopping
-        </button>
       </div>
     );
   }
 
-  useEffect(() => {
-    if (cart.length === 0 && !isSuccess) {
-      navigate('/cart');
-    }
-  }, [cart.length, isSuccess, navigate]);
-
-  if (cart.length === 0 && !isSuccess) {
+  if (cart.length === 0 && !isSubmitting) {
     return null;
   }
 
@@ -82,6 +244,7 @@ export function Checkout() {
       </h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        {/* Checkout Form */}
         <div className="lg:col-span-2">
           <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
             
@@ -131,22 +294,13 @@ export function Checkout() {
               </div>
             </div>
 
-              {/* Payment Method */}
+            {/* Payment Method */}
             <div className="bg-white border border-zinc-200 rounded-xl p-6">
               <h2 className="text-xl font-black uppercase text-black mb-4">Payment Method</h2>
               <div className="space-y-4">
-                <label className={`flex items-center p-4 border rounded cursor-pointer transition-colors ${paymentMethod === 'link' ? 'border-[#B91C1C] bg-[#B91C1C]/5' : 'border-zinc-300 bg-zinc-50 hover:border-zinc-400'}`}>
-                  <input type="radio" name="payment" value="link" checked={paymentMethod === 'link'} onChange={() => setPaymentMethod('link')} className="hidden" />
-                  <CreditCard className={`w-6 h-6 mr-4 ${paymentMethod === 'link' ? 'text-[#B91C1C]' : 'text-zinc-400'}`} />
-                  <div className="flex-grow">
-                    <div className="font-bold text-black">External Pay Link</div>
-                    <div className="text-sm text-zinc-600">Pay securely via our payment partner</div>
-                  </div>
-                </label>
-                
-                <label className={`flex items-center p-4 border rounded cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'border-[#B91C1C] bg-[#B91C1C]/5' : 'border-zinc-300 bg-zinc-50 hover:border-zinc-400'}`}>
+                <label className="flex items-center p-4 border rounded cursor-pointer transition-colors border-[#B91C1C] bg-[#B91C1C]/5">
                   <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="hidden" />
-                  <Truck className={`w-6 h-6 mr-4 ${paymentMethod === 'cod' ? 'text-[#B91C1C]' : 'text-zinc-400'}`} />
+                  <Truck className="w-6 h-6 mr-4 text-[#B91C1C]" />
                   <div className="flex-grow">
                     <div className="font-bold text-black">Pay on Delivery</div>
                     <div className="text-sm text-zinc-600">Pay with cash or card when your order arrives</div>
@@ -158,7 +312,7 @@ export function Checkout() {
           </form>
         </div>
 
-        {/* Order Summary Summary */}
+        {/* Order Summary Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white border border-zinc-200 rounded-xl p-6 sticky top-24">
             <h2 className="text-xl font-black uppercase text-black mb-6">Order Summary</h2>
@@ -204,17 +358,24 @@ export function Checkout() {
             <div className="border-t border-zinc-200 pt-4 mb-8">
               <div className="flex justify-between items-center text-black text-xl font-black">
                 <span>Total</span>
-                <span>{total} ALL</span>
+                <span className="text-[#39FF14]">{total} ALL</span>
               </div>
             </div>
+
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-xs text-red-600">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
             
             <button 
               type="submit"
               form="checkout-form"
               disabled={isSubmitting}
-              className="w-full bg-[#39FF14] text-black shadow-lg shadow-[#39FF14]/20 py-4 rounded font-black uppercase text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer tracking-wider"
+              className="w-full bg-[#39FF14] hover:bg-[#32e012] text-black shadow-lg shadow-[#39FF14]/20 py-4 rounded font-black uppercase text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer tracking-wider"
             >
-              {isSubmitting ? 'Processing...' : 'CONFIRM THE ORDER AND PAY'}
+              {isSubmitting ? 'Submitting Order...' : 'Confirm the Order'}
             </button>
           </div>
         </div>

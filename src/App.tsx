@@ -17,6 +17,7 @@ import { Terms } from './pages/Terms';
 import { Privacy } from './pages/Privacy';
 import { Refund } from './pages/Refund';
 import { Shipping } from './pages/Shipping';
+import { OrderSuccess } from './pages/OrderSuccess';
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: "product/:id", element: <ProductDetail /> },
       { path: "cart", element: <Cart /> },
       { path: "checkout", element: <Checkout /> },
+      { path: "order-success", element: <OrderSuccess /> },
       { path: "wishlist", element: <Wishlist /> },
       { path: "about", element: <About /> },
       { path: "terms", element: <Terms /> },
