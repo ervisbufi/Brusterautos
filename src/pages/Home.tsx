@@ -5,7 +5,7 @@ import { ArrowRight, Zap, Shield, Trophy } from 'lucide-react';
 import { PRODUCTS, CATEGORIES } from '../data';
 import { ProductCard } from '../components/ProductCard';
 
-const HERO_IMAGE = "/images/Aventador.jpg";
+const HERO_IMAGE = "/images/Aventador.jpeg";
 
 export function Home() {
   const [searchParams] = useSearchParams();

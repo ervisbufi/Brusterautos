@@ -103,6 +103,7 @@ export function Checkout() {
       
       clearCart();
       setConfirmedOrder(createdRecord);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     } catch (err: unknown) {
       console.error('Failed to submit order to Supabase:', err);
       const errObj = err as { message?: string };
@@ -119,6 +120,12 @@ export function Checkout() {
       navigate('/cart');
     }
   }, [cart.length, isSubmitting, confirmedOrder, navigate]);
+
+  useEffect(() => {
+    if (confirmedOrder) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [confirmedOrder]);
 
   // If order is confirmed, display ONLY the confirmation section
   if (confirmedOrder) {

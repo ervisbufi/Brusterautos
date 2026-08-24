@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShoppingCart, Star } from 'lucide-react';
+import { X, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
@@ -69,43 +69,34 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
 
             {/* Content Section */}
             <div className="w-full md:w-1/2 p-8 flex flex-col">
-              <h2 className="text-2xl font-bold text-zinc-900 mb-2 leading-tight">{product.name}</h2>
+              <h2 className="text-2xl font-bold text-zinc-900 mb-4 leading-tight">{product.name}</h2>
               
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center text-[#B91C1C]">
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                </div>
-                <span className="text-zinc-500 text-sm font-medium">({product.reviews} reviews)</span>
-              </div>
-
-              <p className="text-3xl font-black text-[#39FF14] mb-6">{product.price} ALL</p>
-              
-              <p className="text-zinc-600 mb-8 line-clamp-5 leading-relaxed text-sm">
+              <p className="text-zinc-600 mb-6 line-clamp-5 leading-relaxed text-sm">
                 {product.description}
               </p>
 
-              <div className="mt-auto flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => {
-                    addToCart(product);
-                    onClose();
-                  }}
-                  className="flex-1 bg-black text-white font-bold py-3 px-6 rounded flex items-center justify-center gap-2 hover:bg-[#B91C1C] transition-colors uppercase text-xs tracking-wider"
-                >
-                  <ShoppingCart className="w-4 h-4" />
-                  Add to Cart
-                </button>
-                <Link
-                  to={`/product/${product.id}`}
-                  onClick={onClose}
-                  className="flex-1 bg-zinc-100 text-zinc-900 border border-zinc-200 font-bold py-3 px-6 rounded flex items-center justify-center hover:bg-zinc-200 transition-colors uppercase text-xs tracking-wider"
-                >
-                  View Details
-                </Link>
+              <div className="mt-auto">
+                <p className="text-3xl font-black text-[#39FF14] mb-4">{product.price} ALL</p>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      addToCart(product);
+                      onClose();
+                    }}
+                    className="flex-1 bg-black text-white font-bold py-3 px-6 rounded flex items-center justify-center gap-2 hover:bg-[#B91C1C] transition-colors uppercase text-xs tracking-wider"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    Add to Cart
+                  </button>
+                  <Link
+                    to={`/product/${product.id}`}
+                    onClick={onClose}
+                    className="flex-1 bg-zinc-100 text-zinc-900 border border-zinc-200 font-bold py-3 px-6 rounded flex items-center justify-center hover:bg-zinc-200 transition-colors uppercase text-xs tracking-wider"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
             </div>
           </motion.div>

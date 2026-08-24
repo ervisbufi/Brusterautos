@@ -71,7 +71,7 @@ export const PRODUCTS: Product[] = [
     category: 'Mercedes-Benz',
     image: '/images/BENZ%20BRED.jpeg',
     rating: 4.7,
-    reviews: 280
+    reviews: 0
   },
   {
     id: 'k12',
