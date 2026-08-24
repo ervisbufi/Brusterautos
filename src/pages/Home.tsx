@@ -34,6 +34,12 @@ export function Home() {
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1 }}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.endsWith('/images/Aventador.jpg')) {
+                    target.src = '/images/Aventador.jpg';
+                  }
+                }}
                 className="absolute inset-0 w-full h-full object-cover object-center"
                 referrerPolicy="no-referrer"
               />
