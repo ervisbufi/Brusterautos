@@ -4,6 +4,46 @@ export const CATEGORIES = ['All', 'Audi', 'Mercedes-Benz', 'VOLKSWAGEN', 'UNIVER
 
 export const PRODUCTS: Product[] = [
   {
+    id: 'u1',
+    name: 'All-Weather Premium Waterproof Car Cover',
+    description: 'Heavy-duty all-season car cover engineered from breathable waterproof fabric. Shields against harsh UV sunlight, torrential rain, frost, snow, tree sap, and dust. Comes complete with anti-theft cable lock and windproof strap buckles.',
+    price: 3500,
+    category: 'UNIVERSAL',
+    image: '/images/carcover.jpg',
+    rating: 4.9,
+    reviews: 142
+  },
+  {
+    id: 'u2',
+    name: 'Reflective Accordion Windshield Sunshade',
+    description: 'High-density reflective double-layer aluminum foil sunshade. Blocks 99% of damaging UV rays and significantly lowers vehicle interior temperatures. Compact accordion fold with secure suction cups and elastic storage strap.',
+    price: 1200,
+    category: 'UNIVERSAL',
+    image: '/images/carsunshade.jpg',
+    rating: 4.8,
+    reviews: 218
+  },
+  {
+    id: 'u3',
+    name: 'RGB Wireless Bluetooth FM Transmitter & Fast Charger',
+    description: 'Sleek multi-color RGB ambient lighting Bluetooth 5.0 FM car audio adapter. Features dual USB fast-charging ports, lossless audio decoding (MP3/WAV/FLAC), one-touch hands-free calling, and intuitive central rotary dial.',
+    price: 1800,
+    category: 'UNIVERSAL',
+    image: '/images/MP3colorkatror.JPEG',
+    rating: 4.9,
+    reviews: 310
+  },
+  {
+    id: 'u4',
+    name: '360° HD Convex Blind Spot Mirrors (Pair)',
+    description: 'Pair of frameless high-definition convex wide-angle blind spot mirrors. 360-degree rotation and angle adjustability to eliminate driving blind spots, facilitate effortless parallel parking, and improve road safety.',
+    price: 700,
+    category: 'UNIVERSAL',
+    image: '/images/smallmirrors.jpg',
+    rating: 4.7,
+    reviews: 185
+  },
+  {
     id: 'k1',
     name: 'Audi A6 Black & Silver Premium Case',
     description: 'Protect your Audi A6 key with this premium black case featuring an elegant silver trim. Engineered for perfect button alignment.',

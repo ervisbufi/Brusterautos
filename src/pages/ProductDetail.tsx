@@ -79,44 +79,36 @@ export function ProductDetail() {
 
             <div className="mt-auto">
               <div className="flex items-center gap-4 mb-6">
-                <div className="flex items-center border border-zinc-200 rounded-lg bg-zinc-50">
+                <div className="flex-1 h-12 flex items-center justify-between border border-zinc-200 rounded-lg bg-zinc-50 px-3">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-4 py-3 text-zinc-500 hover:text-black transition-colors cursor-pointer"
+                    className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-black transition-colors cursor-pointer text-base font-bold rounded hover:bg-zinc-200/60"
                   >
                     -
                   </button>
-                  <span className="w-12 text-center font-bold text-black">{quantity}</span>
+                  <span className="w-8 text-center font-bold text-black text-sm">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="px-4 py-3 text-zinc-500 hover:text-black transition-colors cursor-pointer"
+                    className="w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-black transition-colors cursor-pointer text-base font-bold rounded hover:bg-zinc-200/60"
                   >
                     +
                   </button>
                 </div>
                 
                 <button 
+                  id="add-to-cart-btn"
                   onClick={handleAddToCart}
                   disabled={isAdded}
-                  className={`flex-1 py-3 px-6 rounded-lg font-bold text-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  className={`flex-1 h-12 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
                     isAdded 
                       ? 'bg-green-600 text-white' 
-                      : 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-[darkred] hover:bg-[#700000] text-white shadow-md shadow-red-950/20'
                   }`}
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <ShoppingCart className="w-4 h-4" />
                   {isAdded ? 'Added to Cart!' : 'Add to Cart'}
                 </button>
               </div>
-              
-              <button 
-                onClick={handleAddToCart}
-                disabled={isAdded}
-                className="w-full bg-black text-white hover:bg-[#B91C1C] py-3 rounded font-black text-sm uppercase transition-colors mt-4 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                {isAdded ? 'Added to Cart!' : 'Add to Cart'}
-              </button>
             </div>
             
           </motion.div>

@@ -56,17 +56,36 @@ export function OrderSuccess() {
       if (!order && orderId) {
         setIsLoading(true);
         try {
-          const { data, error } = await supabase
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Supabase timed out')), 2500)
+          );
+          const queryPromise = supabase
             .from('orders')
             .select('*')
             .eq('id', orderId)
             .single();
 
-          if (!error && data) {
-            setOrder(data);
+          const result = (await Promise.race([queryPromise, timeoutPromise])) as {
+            data: any;
+            error: any;
+          };
+
+          if (!result.error && result.data) {
+            setOrder(result.data);
+            return;
           }
         } catch (e) {
-          console.error('Error fetching order:', e);
+          console.warn('Supabase query error or timeout, checking local storage:', e);
+        }
+
+        try {
+          const localOrders = JSON.parse(localStorage.getItem('bruster_orders') || '[]');
+          const found = localOrders.find((o: any) => String(o.id) === String(orderId));
+          if (found) {
+            setOrder(found);
+          }
+        } catch (storageErr) {
+          console.warn('Could not read from localStorage:', storageErr);
         } finally {
           setIsLoading(false);
         }
